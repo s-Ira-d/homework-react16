@@ -1,11 +1,13 @@
-import React from "react";
+import React, { forwardRef } from "react";
 import { SectionWrapper, SectionTitle } from "./Section.styled.js";
 
-export default function Section({ title, children }) {
+const Section = forwardRef(({ title, children }, ref) => {
   return (
-    <SectionWrapper>
+    <SectionWrapper ref={ref}>
       <SectionTitle>{title}</SectionTitle>
       {children}
     </SectionWrapper>
   );
-}
+});
+
+export default Section;

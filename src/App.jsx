@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useRef } from "react";
 
 import FeedbackOptions from "./components/FeedbackOptions/FeedbackOptions.jsx";
 import Statistics from "./components/Statistics/Statistics.jsx";
 import Section from "./components/Section/Section.jsx";
 import Notification from "./components/Notification/Notification.jsx";
+
+import { FeedbackContext } from "./FeedbackContext";
 
 export default function App() {
   const [feedback, setFeedback] = useState({
@@ -12,13 +14,17 @@ export default function App() {
     bad: 0,
   });
 
-  useEffect(() => {}, []);
+  const statisticsRef = useRef(null);
 
   const handleLeaveFeedback = (type) => {
     setFeedback((prevState) => ({
       ...prevState,
       [type]: prevState[type] + 1,
     }));
+
+    statisticsRef.current?.scrollIntoView({
+      behavior: "smooth",
+    });
   };
 
   const countTotalFeedback = () => {
@@ -41,27 +47,31 @@ export default function App() {
   const total = countTotalFeedback();
 
   return (
-    <div>
-      <Section title="Please leave feedback">
-        <FeedbackOptions
-          options={options}
-          onLeaveFeedback={handleLeaveFeedback}
-        />
-      </Section>
+    <FeedbackContext.Provider
+      value={{
+        feedback,
+        handleLeaveFeedback,
+      }}
+    >
+      <div>
+        <Section title="Please leave feedback">
+          <FeedbackOptions options={options} />
+        </Section>
 
-      <Section title="Statistics">
-        {total === 0 ? (
-          <Notification message="There is no feedback" />
-        ) : (
-          <Statistics
-            good={feedback.good}
-            neutral={feedback.neutral}
-            bad={feedback.bad}
-            total={total}
-            positivePercentage={countPositiveFeedbackPercentage()}
-          />
-        )}
-      </Section>
-    </div>
+        <Section title="Statistics" ref={statisticsRef}>
+          {total === 0 ? (
+            <Notification message="There is no feedback" />
+          ) : (
+            <Statistics
+              good={feedback.good}
+              neutral={feedback.neutral}
+              bad={feedback.bad}
+              total={total}
+              positivePercentage={countPositiveFeedbackPercentage()}
+            />
+          )}
+        </Section>
+      </div>
+    </FeedbackContext.Provider>
   );
 }
