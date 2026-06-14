@@ -1,46 +1,29 @@
-import React, { useState, useRef } from "react";
+import React, { useRef } from "react";
 
-import FeedbackOptions from "./components/FeedbackOptions/FeedbackOptions.jsx";
-import Statistics from "./components/Statistics/Statistics.jsx";
-import Section from "./components/Section/Section.jsx";
-import Notification from "./components/Notification/Notification.jsx";
+import FeedbackOptions from "./components/FeedbackOptions/FeedbackOptions";
+import Statistics from "./components/Statistics/Statistics";
+import Section from "./components/Section/Section";
+import Notification from "./components/Notification/Notification";
 
 import { FeedbackContext } from "./FeedbackContext";
+import { useFeedback } from "./hooks/useFeedback";
 
 export default function App() {
-  const [feedback, setFeedback] = useState({
-    good: 0,
-    neutral: 0,
-    bad: 0,
-  });
+  const {
+    feedback,
+    handleLeaveFeedback,
+    countTotalFeedback,
+    countPositiveFeedbackPercentage,
+  } = useFeedback();
 
   const statisticsRef = useRef(null);
 
-  const handleLeaveFeedback = (type) => {
-    setFeedback((prevState) => ({
-      ...prevState,
-      [type]: prevState[type] + 1,
-    }));
+  const handleFeedbackClick = (type) => {
+    handleLeaveFeedback(type);
 
     statisticsRef.current?.scrollIntoView({
       behavior: "smooth",
     });
-  };
-
-  const countTotalFeedback = () => {
-    const { good, neutral, bad } = feedback;
-
-    return good + neutral + bad;
-  };
-
-  const countPositiveFeedbackPercentage = () => {
-    const total = countTotalFeedback();
-
-    if (total === 0) {
-      return 0;
-    }
-
-    return Math.round((feedback.good / total) * 100);
   };
 
   const options = Object.keys(feedback);
@@ -50,7 +33,7 @@ export default function App() {
     <FeedbackContext.Provider
       value={{
         feedback,
-        handleLeaveFeedback,
+        handleLeaveFeedback: handleFeedbackClick,
       }}
     >
       <div>
